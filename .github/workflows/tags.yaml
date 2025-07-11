@@ -1,68 +1,73 @@
-name: Tag Automática
+name: Gerar Tag
 
 on:
   push:
     branches:
-      - dev  
-
-permissions:
-  contents: write
+      - dev
 
 jobs:
   tag:
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout
+      - name: Checkout do código
         uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 
 
       - name: Instalar GitHub CLI
-        uses: cli/cli-action@v2
+        run: |
+          sudo apt update
+          sudo apt install gh -y
 
-      - name: Calcular próxima versão
+      - name: Configurar Git
+        run: |
+          git config --global user.name "github-actions"
+          git config --global user.email "github-actions@github.com"
+
+      - name: Obter próxima versão com base nos commits
         id: version
         run: |
-          git fetch --tags
-          LAST_TAG=$(git describe --tags --abbrev=0 || echo "0.0.0")
+          LAST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          echo "Última tag: $LAST_TAG"
 
-          echo "Última tag encontrada: $LAST_TAG"
-
-          # Coleta commits desde a última tag
-          COMMITS=$(git log "$LAST_TAG"..HEAD --pretty=format:"%s%n%b")
+          COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s")
 
           MAJOR=0
           MINOR=0
           PATCH=0
 
-          echo "$COMMITS" | grep -qi "BREAKING CHANGE" && MAJOR=1
-          echo "$COMMITS" | grep -qi "^feat" && MINOR=1
-          echo "$COMMITS" | grep -qi "^fix" && PATCH=1
-
-          IFS='.' read -r MAJ MIN PAT <<< "$LAST_TAG"
-
-          if [ "$MAJOR" -eq 1 ]; then
-            MAJ=$((MAJ + 1))
-            MIN=0
-            PAT=0
-          elif [ "$MINOR" -eq 1 ]; then
-            MIN=$((MIN + 1))
-            PAT=0
-          elif [ "$PATCH" -eq 1 ]; then
-            PAT=$((PAT + 1))
-          else
-            echo "Nenhuma mudança detectada. Nada será tagueado."
-            exit 0
+          if echo "$COMMITS" | grep -q "^feat"; then
+            MINOR=1
           fi
 
-          NEW_VERSION="$MAJ.$MIN.$PAT"
+          if echo "$COMMITS" | grep -q "^fix"; then
+            PATCH=1
+          fi
+
+          if echo "$COMMITS" | grep -q "BREAKING CHANGE"; then
+            MAJOR=1
+          fi
+
+          OLD_VERSION=$(echo "$LAST_TAG" | sed 's/v//')
+          IFS='.' read -r OLD_MAJOR OLD_MINOR OLD_PATCH <<< "$OLD_VERSION"
+
+          NEW_MAJOR=$OLD_MAJOR
+          NEW_MINOR=$OLD_MINOR
+          NEW_PATCH=$OLD_PATCH
+
+          if [ $MAJOR -eq 1 ]; then
+            NEW_MAJOR=$((OLD_MAJOR+1))
+            NEW_MINOR=0
+            NEW_PATCH=0
+          elif [ $MINOR -eq 1 ]; then
+            NEW_MINOR=$((OLD_MINOR+1))
+            NEW_PATCH=0
+          elif [ $PATCH -eq 1 ]; then
+            NEW_PATCH=$((OLD_PATCH+1))
+          fi
+
+          NEW_VERSION="v${NEW_MAJOR}.${NEW_MINOR}.${NEW_PATCH}"
           echo "Nova versão: $NEW_VERSION"
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "tag=$NEW_VERSION" >> $GITHUB_OUTPUT
 
-      - name: Criar tag e pushar
+      - name: Criar nova tag
         run: |
-          git config user.name "github-actions"
-          git config user.email "github-actions@users.noreply.github.com"
-
-          git tag -a "v${{ steps.version.outputs.version }}" -m "Release v${{ steps.version.outputs.version }}"
-          git push origin "v${{ steps.version.outputs.version }}"
