@@ -109,3 +109,14 @@ jobs:
         run: |
           git tag ${{ steps.version.outputs.tag }}
           git push origin ${{ steps.version.outputs.tag }}
+          
+      - name: Salvar tag como artefato
+        if: steps.version.outputs.skip == 'false'
+        run: echo "${{ steps.version.outputs.tag }}" > tag.txt
+
+      - uses: actions/upload-artifact@v4
+        if: steps.version.outputs.skip == 'false'
+        with:
+          name: release-tag
+          path: tag.txt
+

@@ -26,11 +26,21 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions@github.com"
 
+      - name: Baixar tag da última execução
+        uses: actions/download-artifact@v4
+        with:
+          name: release-tag
+
+      - name: Ler tag da release
+        id: tag
+        run: |
+          TAG=$(cat tag.txt)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
       - name: Gerar changelog
         run: |
-          TAGS=($(git tag --sort=-creatordate))
-          NEW_TAG=${TAGS[0]}
-          LAST_TAG=${TAGS[1]}
+          NEW_TAG="${{ steps.tag.outputs.tag }}"
+          LAST_TAG=$(git describe --tags --abbrev=0 ${NEW_TAG}^)
 
           echo "Última tag: $LAST_TAG"
           echo "Nova tag: $NEW_TAG"
@@ -38,7 +48,6 @@ jobs:
           echo "## $NEW_TAG - $(date +'%Y-%m-%d')" > temp_changelog.md
 
           if [ -z "$LAST_TAG" ]; then
-            echo "Primeira tag detectada. Listando todos os commits."
             git log --pretty=format:"- %s" >> temp_changelog.md
           else
             git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s" >> temp_changelog.md
