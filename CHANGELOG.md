@@ -1,3 +1,6 @@
+## v0.5.0 - 2025-07-11
+- feat: Criando um novo arquivo!
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.4.0 - 2025-07-11
 - Merge pull request #5 from 4gu14r/dev
 - fix: corrigindo palavras
