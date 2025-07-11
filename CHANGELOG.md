@@ -1,3 +1,7 @@
+## v0.3.0 - 2025-07-11
+- feat: adicionado
+- fix: não era para ser assim.
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.2.0 - 2025-07-11
 - feat: anotação de teste
 - test: deletando um arquivo de teste
