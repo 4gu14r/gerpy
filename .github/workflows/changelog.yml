@@ -21,15 +21,22 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Configurar Git
+      - name: Instalar GitHub CLI
         run: |
-          git config --global user.name "github-actions"
-          git config --global user.email "github-actions@github.com"
+          sudo apt update
+          sudo apt install gh -y
 
-      - name: Baixar tag da última execução
-        uses: actions/download-artifact@v4
-        with:
-          name: release-tag
+      - name: Baixar tag da execução anterior
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # Obtem o run-id da última execução bem-sucedida do workflow "Criar Tag"
+          RUN_ID=$(gh run list --workflow="Criar Tag" --branch=master --limit=1 --json databaseId -q '.[0].databaseId')
+
+          echo "Último run-id do workflow 'Criar Tag': $RUN_ID"
+
+          # Baixa o artefato release-tag
+          gh run download $RUN_ID -n release-tag
 
       - name: Ler tag da release
         id: tag
