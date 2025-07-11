@@ -49,11 +49,6 @@ jobs:
           TAG=$(cat tag.txt)
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
-      - name: Debug da tag lida
-        run: |
-          cat tag.txt
-          echo "Tag recebida: ${{ steps.tag.outputs.tag }}"
-
       - name: Gerar changelog
         run: |
           NEW_TAG="${{ steps.tag.outputs.tag }}"
