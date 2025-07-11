@@ -15,47 +15,60 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout do código
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Baixar artefato release-tag
+      - name: Baixar tag gerada como artefato
         uses: actions/download-artifact@v4
         with:
           name: release-tag
-          path: .
+          path: tag
 
-      - name: Ler tag da release
-        id: tag
+      - name: Ler a tag
+        id: read_tag
         run: |
-          TAG=$(cat tag.txt)
+          TAG=$(cat tag/tag.txt)
+          if [ -z "$TAG" ]; then
+            echo "❌ Nenhuma tag encontrada. Cancelando release."
+            echo "skip=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "Tag encontrada: $TAG"
           echo "tag=$TAG" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
 
-      - name: Verificar se a tag é nova
-        id: check_tag
+      - name: Obter lista de artefatos do Build
+        if: steps.read_tag.outputs.skip == 'false'
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 ${{ steps.tag.outputs.tag }}^ 2>/dev/null || echo "")
-          if [ "${{ steps.tag.outputs.tag }}" != "$LAST_TAG" ]; then
-            echo "A tag ${{ steps.tag.outputs.tag }} é nova."
-            echo "new_tag=true" >> $GITHUB_OUTPUT
-          else
-            echo "A tag ${{ steps.tag.outputs.tag }} não é nova."
-            echo "new_tag=false" >> $GITHUB_OUTPUT
+          echo "🔍 Buscando ID do artefato do build..."
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
+            > artifacts.json
+
+          ARTIFACT_ID=$(cat artifacts.json | jq -r '.artifacts[] | select(.name=="app-windows") | .id')
+
+          if [ -z "$ARTIFACT_ID" ]; then
+            echo "❌ Artifact 'app-windows' não encontrado."
+            exit 1
           fi
 
-      - name: Baixar artefato app-windows
-        if: steps.check_tag.outputs.new_tag == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: app-windows
-          path: artifact
+          echo "✅ Artifact ID encontrado: $ARTIFACT_ID"
+          echo "ARTIFACT_ID=$ARTIFACT_ID" >> $GITHUB_ENV
+
+      - name: Baixar e extrair artefato
+        if: steps.read_tag.outputs.skip == 'false'
+        run: |
+          mkdir -p artifact
+          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ env.ARTIFACT_ID }}/zip \
+            --output artifact.zip
+
+          unzip artifact.zip -d artifact
+          ls artifact
 
       - name: Criar release com o .exe
-        if: steps.check_tag.outputs.new_tag == 'true'
+        if: steps.read_tag.outputs.skip == 'false'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          name: "Release ${{ steps.tag.outputs.tag }}"
+          tag_name: ${{ steps.read_tag.outputs.tag }}
+          name: "Release ${{ steps.read_tag.outputs.tag }}"
           files: artifact/main.exe
           generate_release_notes: true
