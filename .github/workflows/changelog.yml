@@ -71,11 +71,15 @@ jobs:
             sed "/^## $NEW_TAG - /,/^## /{/^## $NEW_TAG - /!{/^## /!d}}" CHANGELOG.md >> temp_changelog.md
           fi
 
+          touch CHANGELOG.md
+
           mv temp_changelog.md CHANGELOG.md
           cat CHANGELOG.md
 
       - name: Commitar e pushar changelog
         run: |
+          touch CHANGELOG.md
+          
           git add CHANGELOG.md
           git commit -m "docs(changelog): atualizar changelog automático [skip ci]" || echo "Nada para commitar"
           git push origin HEAD
