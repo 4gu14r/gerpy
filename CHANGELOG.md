@@ -1,4 +1,6 @@
 ## v0.1.0 - 2025-07-11
+- docs: Criando minha anotação.
+- docs(changelog): atualizar changelog automático [skip ci]
 - test: apaganado denovo
 - docs(changelog): atualizar changelog automático [skip ci]
 - Merge branch 'master' of https://github.com/4gu14r/gerpy
@@ -26,3 +28,4 @@
 - feat: Adicionando um fluxo de trabalho para tags
 - feat: Adicionar fluxos de trabalho do GitHub Actions para criar e liberar o excutavel windows.
 - feat: Projeto iniciado com uma estrutura de pasta inicial.
+## v0.1.0 - 2025-07-11
