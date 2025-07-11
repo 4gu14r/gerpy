@@ -47,7 +47,7 @@ jobs:
           echo "" >> temp_changelog.md
 
           if [ -f CHANGELOG.md ]; then
-            cat CHANGELOG.md >> temp_changelog.md
+            sed "/^## $NEW_TAG - /,/^## /{/^## $NEW_TAG - /!{/^## /!d}}" CHANGELOG.md >> temp_changelog.md
           fi
 
           mv temp_changelog.md CHANGELOG.md
