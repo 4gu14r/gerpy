@@ -1,0 +1,17 @@
+# Ignore ambiente virtual
+venv/
+.env/
+
+# Ignore cache do Python
+__pycache__/
+*.py[cod]
+
+# Ignore arquivos de log, temporários e configs locais
+*.log
+*.sqlite3
+*.db
+.DS_Store
+*.swp
+
+# VS Code
+.vscode/

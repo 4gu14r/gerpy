@@ -1,0 +1,13 @@
+# Dependências principais
+pandas
+openpyxl
+colorama
+setuptools
+pyinstaller
+textual
+
+# Dependências de desenvolvimento (opcional)
+# pytest
+# pytest-cov
+# black
+# flake8
