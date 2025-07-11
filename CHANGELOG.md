@@ -1,3 +1,6 @@
+## v0.5.2 - 2025-07-11
+- fix: testando novamente
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.5.1 - 2025-07-11
 - fix: Verinficando se vai funcionar.
 - docs(changelog): atualizar changelog automático [skip ci]
