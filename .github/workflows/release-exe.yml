@@ -1,10 +1,9 @@
 name: Release Automática
 
 on:
-  workflow_run:
-    workflows: ["Changelog"]
-    types:
-      - completed
+  push:
+    tags:
+      - 'v*'
 
 permissions:
   contents: write
