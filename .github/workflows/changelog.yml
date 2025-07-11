@@ -1,22 +1,22 @@
 name: Changelog
 
-# on:
-#   workflow_run:
-#     workflows: ["Criar Tag"]   # o nome do seu workflow tags.yml
-#     types:
-#       - completed
-
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["Criar Tag"]   # o nome do seu workflow tags.yml
+    types:
+      - completed
+
+# on:
+#   push:
+#     tags:
+#       - 'v*'
 
 permissions:
   contents: write
 
 jobs:
   changelog:
-    # if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
