@@ -49,6 +49,11 @@ jobs:
           TAG=$(cat tag.txt)
           echo "tag=$TAG" >> $GITHUB_OUTPUT
 
+      - name: Debug da tag lida
+        run: |
+          cat tag.txt
+          echo "Tag recebida: ${{ steps.tag.outputs.tag }}"
+
       - name: Gerar changelog
         run: |
           NEW_TAG="${{ steps.tag.outputs.tag }}"
@@ -80,6 +85,11 @@ jobs:
         run: |
           touch CHANGELOG.md
           
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          
+          git checkout ${{ github.event.workflow_run.head_branch }}
+
           git add CHANGELOG.md
           git commit -m "docs(changelog): atualizar changelog automático [skip ci]" || echo "Nada para commitar"
-          git push origin HEAD
+          git push origin ${{ github.event.workflow_run.head_branch }}
