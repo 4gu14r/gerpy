@@ -1,0 +1,53 @@
+name: Release Automática
+
+on:
+  workflow_run:
+    workflows: ["Build EXE on Windows"]
+    types:
+      - completed
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Obter lista de artefatos
+        run: |
+          echo "🔍 Buscando ID do artefato..."
+          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
+            > artifacts.json
+
+          cat artifacts.json | jq '.artifacts[] | {name: .name, id: .id}' > ids.json
+          ARTIFACT_ID=$(cat ids.json | jq -r 'select(.name=="app-windows") | .id')
+
+          if [ -z "$ARTIFACT_ID" ]; then
+            echo "❌ Artifact 'app-windows' não encontrado."
+            exit 1
+          fi
+
+          echo "✅ Artifact ID encontrado: $ARTIFACT_ID"
+          echo "ARTIFACT_ID=$ARTIFACT_ID" >> $GITHUB_ENV
+
+      - name: Baixar e descompactar artefato
+        run: |
+          mkdir -p artifact
+          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ env.ARTIFACT_ID }}/zip \
+            --output artifact.zip
+
+          unzip artifact.zip -d artifact
+          ls artifact
+
+      - name: Criar release com o .exe
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.run_number }}
+          name: "Release v${{ github.run_number }}"
+          files: artifact/main.exe
+          generate_release_notes: true
