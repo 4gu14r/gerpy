@@ -1,4 +1,7 @@
 ## v0.1.0 - 2025-07-11
+- Merge branch 'master' of https://github.com/4gu14r/gerpy
+- refactor: apagando um arquivo inutil.
+- docs(changelog): atualizar changelog automático [skip ci]
 - chore: corrigindo texto errado.
 - docs(changelog): atualizar changelog automático [skip ci]
 - Merge pull request #4 from 4gu14r/dev
@@ -21,5 +24,6 @@
 - feat: Adicionando um fluxo de trabalho para tags
 - feat: Adicionar fluxos de trabalho do GitHub Actions para criar e liberar o excutavel windows.
 - feat: Projeto iniciado com uma estrutura de pasta inicial.
+## v0.1.0 - 2025-07-11
 ## v0.1.2 - 2025-07-11
 
