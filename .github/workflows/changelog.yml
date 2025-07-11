@@ -28,13 +28,22 @@ jobs:
 
       - name: Gerar changelog
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^)
-          NEW_TAG=$(git describe --tags --abbrev=0)
+          TAGS=($(git tag --sort=-creatordate))
+          NEW_TAG=${TAGS[0]}
+          LAST_TAG=${TAGS[1]}
+
           echo "Última tag: $LAST_TAG"
           echo "Nova tag: $NEW_TAG"
 
           echo "## $NEW_TAG - $(date +'%Y-%m-%d')" > temp_changelog.md
-          git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s" >> temp_changelog.md
+
+          if [ -z "$LAST_TAG" ]; then
+            echo "Primeira tag detectada. Listando todos os commits."
+            git log --pretty=format:"- %s" >> temp_changelog.md
+          else
+            git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s" >> temp_changelog.md
+          fi
+
           echo "" >> temp_changelog.md
 
           if [ -f CHANGELOG.md ]; then
