@@ -2,14 +2,10 @@ name: Changelog
 
 on:
   workflow_run:
-    workflows: ["Criar Tag"]   # o nome do seu workflow tags.yml
+    workflows: ["Criar Tag"] 
     types:
       - completed
 
-# on:
-#   push:
-#     tags:
-#       - 'v*'
 
 permissions:
   contents: write
