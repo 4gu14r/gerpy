@@ -1,4 +1,4 @@
-name: Gerar Tag
+name: Criar Tag
 
 on:
   push:
