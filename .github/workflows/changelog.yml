@@ -6,7 +6,6 @@ on:
     types:
       - completed
 
-
 permissions:
   contents: write
 
@@ -20,11 +19,9 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-      
       - name: Buscar todas as tags
         run: |
           git fetch --tags --force
-
 
       - name: Instalar GitHub CLI
         run: |
@@ -35,12 +32,8 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # Obtem o run-id da última execução bem-sucedida do workflow "Criar Tag"
           RUN_ID=$(gh run list --workflow="Criar Tag" --branch=master --limit=1 --json databaseId -q '.[0].databaseId')
-
           echo "Último run-id do workflow 'Criar Tag': $RUN_ID"
-
-          # Baixa o artefato release-tag
           gh run download $RUN_ID -n release-tag
 
       - name: Ler tag da release
@@ -52,12 +45,11 @@ jobs:
       - name: Gerar changelog
         run: |
           NEW_TAG="${{ steps.tag.outputs.tag }}"
+          echo "## $NEW_TAG - $(date +'%Y-%m-%d')" > temp_changelog.md
           LAST_TAG=$(git describe --tags --abbrev=0 ${NEW_TAG}^ 2>/dev/null || echo "")
 
           echo "Última tag: $LAST_TAG"
           echo "Nova tag: $NEW_TAG"
-
-          echo "## $NEW_TAG - $(date +'%Y-%m-%d')" > temp_changelog.md
 
           if [ -z "$LAST_TAG" ]; then
             git log --pretty=format:"- %s" >> temp_changelog.md
@@ -68,23 +60,23 @@ jobs:
           echo "" >> temp_changelog.md
 
           if [ -f CHANGELOG.md ]; then
-            sed "/^## $NEW_TAG - /,/^## /{/^## $NEW_TAG - /!{/^## /!d}}" CHANGELOG.md >> temp_changelog.md
+            if grep -q "^## $NEW_TAG - " CHANGELOG.md; then
+              echo "A tag $NEW_TAG já existe no changelog. Pulando geração."
+              rm temp_changelog.md
+              exit 0
+            else
+              cat CHANGELOG.md >> temp_changelog.md
+            fi
           fi
-
-          touch CHANGELOG.md
 
           mv temp_changelog.md CHANGELOG.md
           cat CHANGELOG.md
 
       - name: Commitar e pushar changelog
         run: |
-          touch CHANGELOG.md
-          
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
-          
           git checkout ${{ github.event.workflow_run.head_branch }}
-
           git add CHANGELOG.md
           git commit -m "docs(changelog): atualizar changelog automático [skip ci]" || echo "Nada para commitar"
           git push origin ${{ github.event.workflow_run.head_branch }}
