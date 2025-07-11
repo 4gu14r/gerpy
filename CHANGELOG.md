@@ -1,4 +1,10 @@
 ## v0.1.0 - 2025-07-11
+- test: quarto e tomara o ultimo teste de existencia.
+- test: terceiro teste de existencia
+- test: segundo teste de existente
+- test: Teste do existente.
+- test: Correção de arquivo
+- docs(changelog): atualizar changelog automático [skip ci]
 - test: quinto teste
 - test: quarto teste
 - test: Teceiro teste changlog
@@ -34,3 +40,4 @@
 - feat: Adicionando um fluxo de trabalho para tags
 - feat: Adicionar fluxos de trabalho do GitHub Actions para criar e liberar o excutavel windows.
 - feat: Projeto iniciado com uma estrutura de pasta inicial.
+## v0.1.0 - 2025-07-11
