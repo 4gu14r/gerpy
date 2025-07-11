@@ -1,3 +1,7 @@
+## v0.2.0 - 2025-07-11
+- feat: anotação de teste
+- test: deletando um arquivo de teste
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.1.0 - 2025-07-11
 - test: Teste da repetição.
 - Delete:  CHANGELOG.md
