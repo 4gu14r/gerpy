@@ -12,6 +12,8 @@ jobs:
     steps:
       - name: Checkout do código
         uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
 
       - name: Instalar GitHub CLI
         run: |
@@ -26,10 +28,17 @@ jobs:
       - name: Obter próxima versão com base nos commits
         id: version
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 || echo "v0.0.0")
+          LAST_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v0.0.0")
           echo "Última tag: $LAST_TAG"
 
-          COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s")
+          if git rev-parse "$LAST_TAG" >/dev/null 2>&1; then
+            COMMITS=$(git log ${LAST_TAG}..HEAD --pretty=format:"%s")
+          else
+            COMMITS=$(git log --pretty=format:"%s")
+          fi
+
+          echo "Commits desde $LAST_TAG:"
+          echo "$COMMITS"
 
           MAJOR=0
           MINOR=0
@@ -71,3 +80,5 @@ jobs:
 
       - name: Criar nova tag
         run: |
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}
