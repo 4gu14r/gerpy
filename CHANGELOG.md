@@ -1,3 +1,6 @@
+## v0.5.1 - 2025-07-11
+- fix: Verinficando se vai funcionar.
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.5.0 - 2025-07-11
 - feat: Criando um novo arquivo!
 - docs(changelog): atualizar changelog automático [skip ci]
