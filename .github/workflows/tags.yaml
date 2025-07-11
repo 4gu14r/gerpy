@@ -3,7 +3,7 @@ name: Criar Tag
 on:
   push:
     branches:
-      - dev
+      - master
 
 permissions:
   contents: write
