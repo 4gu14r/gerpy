@@ -90,9 +90,8 @@ jobs:
           echo "tag=$NEW_VERSION" >> $GITHUB_OUTPUT
           echo "skip=false" >> $GITHUB_OUTPUT
           
-        outputs:
-          tag: ${{ steps.version.outputs.tag }}
-          skip: ${{ steps.version.outputs.skip }}
+          echo "tag=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "skip=false" >> $GITHUB_OUTPUT
 
 
       - name: Autenticar com token
