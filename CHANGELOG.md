@@ -1,2 +1,25 @@
+## v0.1.0 - 2025-07-11
+- chore: corrigindo texto errado.
+- docs(changelog): atualizar changelog automático [skip ci]
+- Merge pull request #4 from 4gu14r/dev
+- test: Testando novamente para ver se vai dá certo.
+- Merge pull request #3 from 4gu14r/dev
+- test: Verificando se vai dar erro.
+- Merge pull request #2 from 4gu14r/dev
+- refactor: atualização workflows
+- Merge pull request #1 from 4gu14r/dev
+- fix: Trocando de dev para master
+- test: agora um teste sem comentarios
+- fix: comentando uma linha.
+- fix: testando novamente o changelog automatico1.
+- fix: testando novamente o changelog automatico.
+- fix: testando workflow do changelog
+- feat: adicionar workflow para geração automática de changelog
+- feat: adicionar permissão de escrita e autenticação para criação de tags
+- fix: pegando as ultimas tag criadas.
+- fix: trocando para outro pacote.
+- feat: Adicionando um fluxo de trabalho para tags
+- feat: Adicionar fluxos de trabalho do GitHub Actions para criar e liberar o excutavel windows.
+- feat: Projeto iniciado com uma estrutura de pasta inicial.
 ## v0.1.2 - 2025-07-11
 
