@@ -1,3 +1,8 @@
+## v0.4.0 - 2025-07-11
+- Merge pull request #5 from 4gu14r/dev
+- fix: corrigindo palavras
+- feat: adicionando um arquivo.
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.3.0 - 2025-07-11
 - feat: adicionado
 - fix: não era para ser assim.
