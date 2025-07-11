@@ -1,10 +1,10 @@
 name: Release Automática
 
-# on:
-#   workflow_run:
-#     workflows: ["Build EXE on Windows"]
-#     types:
-#       - completed
+on:
+  workflow_run:
+    workflows: ["Changelog"]
+    types:
+      - completed
 
 permissions:
   contents: write
@@ -15,7 +15,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout do código
+        uses: actions/checkout@v3
+
+      - name: Baixar artefato tag.txt
+        uses: actions/download-artifact@v3
+        with:
+          name: release-tag
+          path: .
+
+      - name: Ler tag da release
+        id: tag
+        run: |
+          TAG=$(cat tag.txt)
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+
+      - name: Verificar se a tag existe
+        id: check_tag
+        run: |
+          if git rev-parse "${{ steps.tag.outputs.tag }}" >/dev/null 2>&1; then
+            echo "A tag existe."
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "A tag não existe."
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Obter lista de artefatos
+        if: steps.check_tag.outputs.exists == 'true'
         run: |
           echo "🔍 Buscando ID do artefato..."
           curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -34,6 +61,7 @@ jobs:
           echo "ARTIFACT_ID=$ARTIFACT_ID" >> $GITHUB_ENV
 
       - name: Baixar e descompactar artefato
+        if: steps.check_tag.outputs.exists == 'true'
         run: |
           mkdir -p artifact
           curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
@@ -45,9 +73,10 @@ jobs:
           ls artifact
 
       - name: Criar release com o .exe
+        if: steps.check_tag.outputs.exists == 'true'
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ github.run_number }}
-          name: "Release v${{ github.run_number }}"
+          tag_name: ${{ steps.tag.outputs.tag }}
+          name: "Release ${{ steps.tag.outputs.tag }}"
           files: artifact/main.exe
           generate_release_notes: true
