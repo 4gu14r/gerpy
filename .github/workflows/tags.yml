@@ -102,9 +102,10 @@ jobs:
             echo "exists=true" >> $GITHUB_OUTPUT
           else
             echo "exists=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Criar nova tag e enviar
-        if: steps.version.outputs.skip == 'false'
+        if: steps.version.outputs.skip == 'false' && steps.check_tag.outputs.exists == 'false'
         run: |
           git tag ${{ steps.version.outputs.tag }}
           git push origin ${{ steps.version.outputs.tag }}
