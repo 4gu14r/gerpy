@@ -52,9 +52,9 @@ jobs:
           echo "Nova tag: $NEW_TAG"
 
           if [ -z "$LAST_TAG" ]; then
-            git log --pretty=format:"- %s" >> temp_changelog.md
+            git log --pretty=format:"- %s" | sed 's/\[skip ci\]//g' >> temp_changelog.md
           else
-            git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s" >> temp_changelog.md
+            git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s" | sed 's/\[skip ci\]//g' >> temp_changelog.md
           fi
 
           echo "" >> temp_changelog.md
@@ -78,7 +78,7 @@ jobs:
           git config user.email "github-actions@github.com"
           git checkout ${{ github.event.workflow_run.head_branch }}
           git add CHANGELOG.md
-          git commit -m "docs(changelog): atualizar changelog automático [skip ci]" || echo "Nada para commitar"
+          git commit -m "docs: changelog atualizado [skip ci]" || echo "Nada para commitar"
           git push origin ${{ github.event.workflow_run.head_branch }}
 
       - name: Re‑upload tag como artefato
