@@ -1,3 +1,8 @@
+## v0.6.7 - 2025-07-12
+- Merge branch 'master' of https://github.com/4gu14r/gerpy
+- fix: por favor tomara que seja o ultimo
+- test: tomara que sja um dos ultimos teste kkkkkkkk
+- docs(changelog): atualizar changelog automático 
 ## v0.6.6 - 2025-07-12
 - fix: pensei que era o fim!
 - docs(changelog): atualizar changelog automático [skip ci]
