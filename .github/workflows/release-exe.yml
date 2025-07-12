@@ -85,9 +85,13 @@ jobs:
 
           if [ -n "$LAST_TAG" ]; then
             echo "" >> temp_changelog.md
-            git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s _por_ @%an" >> temp_changelog.md
+            git log $LAST_TAG..$NEW_TAG \
+              --pretty=format:"- %s _por_ @%an" \
+              --invert-grep --author="github-actions" >> temp_changelog.md
           else
-            git log --pretty=format:"- %s ([%an](mailto:%ae))" >> temp_changelog.md
+            git log \
+              --pretty=format:"- %s _por_ @%an" \
+              --invert-grep --author="github-actions" >> temp_changelog.md
           fi
 
       - name: Criar Release
