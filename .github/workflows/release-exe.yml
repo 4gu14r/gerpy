@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           fetch-depth: 0
-          
+
       # 1️⃣ Baixa a tag (tag.txt) re‑enviada pelo Changelog
       - name: Encontrar run do workflow 'Changelog'
         id: changelog_run
@@ -76,12 +76,20 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       # 5️⃣ Criar o Release no GitHub com a tag e o exe
+      - name: Gerar changelog temporário
+        run: |
+          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^)
+          NEW_TAG=${{ steps.read_tag.outputs.tag }}
+          echo "## Changelog: $NEW_TAG" > temp_changelog.md
+          git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s ([%an](mailto:%ae))" >> temp_changelog.md
+
       - name: Criar Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.read_tag.outputs.tag }}
-          name: "Release ${{ steps.read_tag.outputs.tag }}"
+          name: "gerpy-${{ steps.read_tag.outputs.tag }}"
           files: artifact/main.exe
-          generate_release_notes: true
+          body_path: temp_changelog.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
