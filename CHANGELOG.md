@@ -1,3 +1,6 @@
+## v0.6.3 - 2025-07-12
+- fix: teste 3
+- docs(changelog): atualizar changelog automático [skip ci]
 ## v0.6.2 - 2025-07-12
 - fix: teste2
 - docs(changelog): atualizar changelog automático [skip ci]
