@@ -16,11 +16,23 @@ jobs:
 
     steps:
       # 1️⃣ Baixa a tag (tag.txt) re‑enviada pelo Changelog
+      - name: Encontrar run do workflow 'Changelog'
+        id: changelog_run
+        run: |
+          RUN_ID=$(gh run list \
+            --workflow="Changelog" \
+            --branch=master --limit=1 \
+            --json databaseId,status \
+            -q '.[] | select(.status=="completed") | .databaseId')
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Baixar tag da execução de Changelog
-        uses: actions/download-artifact@v4
-        with:
-          name: release-tag
-          path: .
+        run: |
+          gh run download ${{ steps.changelog_run.outputs.run_id }} -n release-tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Ler a tag
         id: read_tag
