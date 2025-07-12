@@ -1,3 +1,6 @@
+## v0.6.10 - 2025-07-12
+- fix: E lá vamos nós!
+- docs: changelog atualizado 
 ## v0.6.9 - 2025-07-12
 - fix: novamente
 - docs: changelog atualizado 
