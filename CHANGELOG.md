@@ -1,3 +1,6 @@
+## v0.6.12 - 2025-07-12
+- fix: numero 1
+- docs: changelog atualizado 
 ## v0.6.11 - 2025-07-12
 - fix: eu não aguento mais!
 - docs: changelog atualizado 
