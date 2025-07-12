@@ -78,10 +78,17 @@ jobs:
       # 5️⃣ Criar o Release no GitHub com a tag e o exe
       - name: Gerar changelog temporário
         run: |
-          LAST_TAG=$(git describe --tags --abbrev=0 HEAD^)
           NEW_TAG=${{ steps.read_tag.outputs.tag }}
+          LAST_TAG=$(git describe --tags --abbrev=0 "${NEW_TAG}^" 2>/dev/null || echo "")
+
           echo "## Changelog: $NEW_TAG" > temp_changelog.md
-          git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s ([%an](mailto:%ae))" >> temp_changelog.md
+
+          if [ -n "$LAST_TAG" ]; then
+            echo "" >> temp_changelog.md
+            git log $LAST_TAG..$NEW_TAG --pretty=format:"- %s ([%an](mailto:%ae))" >> temp_changelog.md
+          else
+            git log --pretty=format:"- %s ([%an](mailto:%ae))" >> temp_changelog.md
+          fi
 
       - name: Criar Release
         uses: softprops/action-gh-release@v1
