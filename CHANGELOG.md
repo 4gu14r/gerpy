@@ -1,3 +1,6 @@
+## v0.6.9 - 2025-07-12
+- fix: novamente
+- docs: changelog atualizado 
 ## v0.6.8 - 2025-07-12
 - fix: vamos ver se tvai dá certo
 - docs: changelog atualizado 
