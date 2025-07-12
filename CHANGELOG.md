@@ -1,3 +1,6 @@
+## v0.6.8 - 2025-07-12
+- fix: vamos ver se tvai dá certo
+- docs: changelog atualizado 
 ## v0.6.7 - 2025-07-12
 - Merge branch 'master' of https://github.com/4gu14r/gerpy
 - fix: por favor tomara que seja o ultimo
