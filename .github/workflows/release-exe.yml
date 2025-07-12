@@ -84,21 +84,18 @@ jobs:
           echo "## Changelog:" > temp_changelog.md
 
           if [ -n "$LAST_TAG" ]; then
-            echo "" >> temp_changelog.md
             git log $LAST_TAG..$NEW_TAG \
-              --pretty=format:"- %s _por_ @%an" \
-              --invert-grep --author="github-actions@github.com" >> temp_changelog.md
+              --pretty=format:"- %s _por_ @%an" | grep -v "github-actions@github.com" >> temp_changelog.md
           else
             git log \
-              --pretty=format:"- %s _por_ @%an" \
-              --invert-grep --author="github-actions@github.com" >> temp_changelog.md
+              --pretty=format:"- %s _por_ @%an" | grep -v "github-actions@github.com" >> temp_changelog.md
           fi
 
       - name: Criar Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.read_tag.outputs.tag }}
-          name: "gerpy-${{ steps.read_tag.outputs.tag }}"
+          name: "${{ steps.read_tag.outputs.tag }}"
           files: artifact/main.exe
           body_path: temp_changelog.md
         env:
