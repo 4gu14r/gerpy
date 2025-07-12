@@ -1,72 +1,70 @@
 name: Release Automática
 
 on:
-  push:
-    tags:
-      - 'v*'
+  workflow_run:
+    workflows: ["Changelog"]
+    types:
+      - completed
 
 permissions:
   contents: write
 
 jobs:
   release:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     runs-on: ubuntu-latest
 
     steps:
-      - name: Baixar tag gerada como artefato
+      # 1️⃣ Baixa a tag (tag.txt) re‑enviada pelo Changelog
+      - name: Baixar tag da execução de Changelog
         uses: actions/download-artifact@v4
         with:
           name: release-tag
-          path: tag
+          path: .
 
       - name: Ler a tag
         id: read_tag
         run: |
-          TAG=$(cat tag/tag.txt)
-          if [ -z "$TAG" ]; then
-            echo "❌ Nenhuma tag encontrada. Cancelando release."
-            echo "skip=true" >> $GITHUB_OUTPUT
-            exit 0
-          fi
-          echo "Tag encontrada: $TAG"
+          TAG=$(cat tag.txt)
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-          echo "skip=false" >> $GITHUB_OUTPUT
 
-      - name: Obter lista de artefatos do Build
-        if: steps.read_tag.outputs.skip == 'false'
+      # 2️⃣ Instalar gh para buscar o artefato do build
+      - name: Instalar GitHub CLI
         run: |
-          echo "🔍 Buscando ID do artefato do build..."
-          curl -s -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://api.github.com/repos/${{ github.repository }}/actions/runs/${{ github.event.workflow_run.id }}/artifacts \
-            > artifacts.json
+          sudo apt update && sudo apt install -y gh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          ARTIFACT_ID=$(cat artifacts.json | jq -r '.artifacts[] | select(.name=="app-windows") | .id')
+      # 3️⃣ Encontrar o run mais recente do Build EXE on Windows
+      - name: Encontrar run do Build EXE
+        id: build_run
+        run: |
+          RUN_ID=$(gh run list \
+            --workflow="Build EXE on Windows" \
+            --branch=master --limit=1 \
+            --json databaseId,status \
+            -q '.[] | select(.status=="completed") | .databaseId')
+          echo "run_id=$RUN_ID" >> $GITHUB_OUTPUT
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-          if [ -z "$ARTIFACT_ID" ]; then
-            echo "❌ Artifact 'app-windows' não encontrado."
-            exit 1
-          fi
-
-          echo "✅ Artifact ID encontrado: $ARTIFACT_ID"
-          echo "ARTIFACT_ID=$ARTIFACT_ID" >> $GITHUB_ENV
-
-      - name: Baixar e extrair artefato
-        if: steps.read_tag.outputs.skip == 'false'
+      # 4️⃣ Baixar o artefato app‑windows desse run
+      - name: Baixar artefato .exe
         run: |
           mkdir -p artifact
-          curl -L -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            -H "Accept: application/vnd.github+json" \
-            https://api.github.com/repos/${{ github.repository }}/actions/artifacts/${{ env.ARTIFACT_ID }}/zip \
-            --output artifact.zip
-
-          unzip artifact.zip -d artifact
+          gh run download ${{ steps.build_run.outputs.run_id }} \
+            -n app-windows -D artifact
           ls artifact
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Criar release com o .exe
-        if: steps.read_tag.outputs.skip == 'false'
+      # 5️⃣ Criar o Release no GitHub com a tag e o exe
+      - name: Criar Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.read_tag.outputs.tag }}
           name: "Release ${{ steps.read_tag.outputs.tag }}"
           files: artifact/main.exe
           generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

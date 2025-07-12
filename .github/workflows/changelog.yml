@@ -80,3 +80,9 @@ jobs:
           git add CHANGELOG.md
           git commit -m "docs(changelog): atualizar changelog automático [skip ci]" || echo "Nada para commitar"
           git push origin ${{ github.event.workflow_run.head_branch }}
+
+      - name: Re‑upload tag como artefato
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-tag
+          path: tag.txt
